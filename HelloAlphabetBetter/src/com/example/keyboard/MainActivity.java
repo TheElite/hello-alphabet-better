@@ -14,6 +14,10 @@ public class MainActivity extends Activity {
 	String letter = "A";
 	static final long timeToWait = 200;
 	static long timeStart = 0;
+	static final long requiredDisplacement = 25; //pixels
+	
+	static int rawX1;
+	static int rawY1;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -33,40 +37,38 @@ public class MainActivity extends Activity {
 	public boolean onTouchEvent(MotionEvent event) {
 	    // TODO Auto-generated method stub
 		if(System.currentTimeMillis() - timeStart > timeToWait){
-		    super.onTouchEvent(event);
-		    
-		    TextView textViewToChange = (TextView) findViewById(R.id.A);
-		    
-		    Character temp = letter.charAt(0);
-		    temp++;
 			
-			if(temp > 'Z')
-				temp = 'A';
-			if(temp < 'A')
-				temp = 'Z';
-			
-			letter = temp.toString();
-			textViewToChange.setText(letter);
-			
-			timeStart = System.currentTimeMillis();
-		}
+			if(event.getHistorySize() > 0){
+				
+				float x = event.getHistoricalX(0);
+				float x2 = event.getHistoricalX(event.getHistorySize()-1);
+				
+				if(Math.abs(x - x2) > requiredDisplacement){
+				
+				    super.onTouchEvent(event);
+				    
+				    TextView textViewToChange = (TextView) findViewById(R.id.A);
+				    
+				    Character temp = letter.charAt(0);
+				    
+				    if(x - x2 < 0)
+				    	temp++;
+				    else temp--;
+					
+					if(temp > 'Z')
+						temp = 'A';
+					if(temp < 'A')
+						temp = 'Z';
+					
+					letter = temp.toString();
+					textViewToChange.setText(letter);
+					
+					timeStart = System.currentTimeMillis();
+				
+				}
+			}
+		}	   
 	    
-	    /*
-	    int action = event.getAction() & MotionEvent.ACTION_MASK;
-	    float x1 = 0, x2 = 0;
-
-	    switch (action) {
-	        case MotionEvent.ACTION_DOWN: {
-	              x1 = event.getX();
-	            break;
-	        }
-	        case MotionEvent.ACTION_UP: {
-	              x2 = event.getX();
-	            break;
-	        }
-	        
-	    }
-	    */
 	    
 	    return true;
 	}
