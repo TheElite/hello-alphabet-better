@@ -3,16 +3,22 @@ package com.example.keyboard;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.DragGestureListener;
 
+import android.inputmethodservice.KeyboardView.OnKeyboardActionListener;
 import android.os.Bundle;
 import android.app.Activity;
+import android.text.Editable;
+import android.text.method.KeyListener;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity{
 
 	String letter = "A";
-	static final long timeToWait = 200;
+	static final long timeToWait = 100;
 	static long timeStart = 0;
 	static final long requiredDisplacement = 25; //pixels
 	
@@ -36,6 +42,9 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 	    // TODO Auto-generated method stub
+		
+		super.onTouchEvent(event);
+		
 		if(System.currentTimeMillis() - timeStart > timeToWait){
 			
 			if(event.getHistorySize() > 0){
@@ -44,16 +53,14 @@ public class MainActivity extends Activity {
 				float x2 = event.getHistoricalX(event.getHistorySize()-1);
 				
 				if(Math.abs(x - x2) > requiredDisplacement){
-				
-				    super.onTouchEvent(event);
-				    
+
 				    TextView textViewToChange = (TextView) findViewById(R.id.A);
 				    
 				    Character temp = letter.charAt(0);
 				    
 				    if(x - x2 < 0)
-				    	temp++;
-				    else temp--;
+				    	temp--;
+				    else temp++;
 					
 					if(temp > 'Z')
 						temp = 'A';
@@ -64,14 +71,38 @@ public class MainActivity extends Activity {
 					textViewToChange.setText(letter);
 					
 					timeStart = System.currentTimeMillis();
-				
 				}
 			}
 		}	   
 	    
-	    
 	    return true;
 	}
+	
+	static boolean toggle = false;
+	@Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+		
+		if(toggle == true){
+			toggle = false;
+			return super.dispatchKeyEvent(event);
+		}
+		
+		
+		TextView textViewToChange = (TextView) findViewById(R.id.A);	
+		
+		Character temp = letter.charAt(0);
+	    temp++;
 	    
-
+	    if(temp > 'Z')
+			temp = 'A';
+		if(temp < 'A')
+			temp = 'Z';
+	    
+		letter = temp.toString();
+		textViewToChange.setText(letter);
+		
+		toggle = true;
+        return super.dispatchKeyEvent(event);
+    }
+	
 }
