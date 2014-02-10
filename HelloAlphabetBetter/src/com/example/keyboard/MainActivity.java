@@ -5,6 +5,7 @@ import java.awt.dnd.DragGestureListener;
 
 import android.inputmethodservice.KeyboardView.OnKeyboardActionListener;
 import android.os.Bundle;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.text.Editable;
 import android.text.method.KeyListener;
@@ -25,12 +26,33 @@ public class MainActivity extends Activity{
 	static int rawX1;
 	static int rawY1;
 	
+	TextView message;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		if(message != null){
+			if(message.length() != 0)
+				message.setText("");
+		}
+		
+		this.message = (TextView) findViewById(R.id.message);
 	}
+	
+	
+	@Override
+	protected void onResume(){
+		
+		super.onResume();
+		
+		if(message != null){
+			if(message.length() != 0)
+				message.setText("");
+		}
+	}
+	
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -39,6 +61,7 @@ public class MainActivity extends Activity{
 		return true;
 	}
 	
+	@SuppressLint("NewApi")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 	    // TODO Auto-generated method stub
@@ -62,10 +85,14 @@ public class MainActivity extends Activity{
 				    	temp--;
 				    else temp++;
 					
-					if(temp > 'Z')
-						temp = 'A';
-					if(temp < 'A')
-						temp = 'Z';
+				    if(temp == '_'+1)
+				    	temp = 'A';	    
+				    else if(temp < 'A')
+						temp = '_';
+				    else if(temp == '_'-1)
+				    	temp = 'Z';
+				    else if(temp == 'Z'+1)
+				    	temp = '_';	
 					
 					letter = temp.toString();
 					textViewToChange.setText(letter);
@@ -79,6 +106,7 @@ public class MainActivity extends Activity{
 	}
 	
 	static boolean toggle = false;
+	@SuppressLint("NewApi")
 	@Override
     public boolean dispatchKeyEvent(KeyEvent event) {
 		
@@ -87,22 +115,45 @@ public class MainActivity extends Activity{
 			return super.dispatchKeyEvent(event);
 		}
 		
+
+		if(event.getKeyCode() == KeyEvent.KEYCODE_D){
+			TextView textViewToChange = (TextView) findViewById(R.id.A);	
+			
+			Character temp = letter.charAt(0);
+		    temp++;
+		    
+		    
+		    
+		    if(temp == '_'+1)
+		    	temp = 'A';	    
+		    else if(temp < 'A')
+				temp = '_';
+		    else if(temp == '_'-1)
+		    	temp = 'Z';
+		    else if(temp == 'Z'+1)
+		    	temp = '_';	
+		    
+			letter = temp.toString();
+			textViewToChange.setText(letter);
+			
+			toggle = true;
+		}
 		
-		TextView textViewToChange = (TextView) findViewById(R.id.A);	
+		else if(event.getKeyCode() == KeyEvent.KEYCODE_SPACE){
+			TextView message = (TextView) findViewById(R.id.message);
+			Character currentChar = letter.charAt(0);
+			TextView textViewToChange = (TextView) findViewById(R.id.A);
+			
+			//if(letter.charAt(0) == '_')
+			//	currentChar = ' ';
+			
+			String newMessage = message.getText() + currentChar.toString();
+			textViewToChange.setText(letter);
+			message.setText(newMessage);
+			toggle = true;
+		}
 		
-		Character temp = letter.charAt(0);
-	    temp++;
-	    
-	    if(temp > 'Z')
-			temp = 'A';
-		if(temp < 'A')
-			temp = 'Z';
-	    
-		letter = temp.toString();
-		textViewToChange.setText(letter);
-		
-		toggle = true;
-        return super.dispatchKeyEvent(event);
+		return super.dispatchKeyEvent(event);
     }
 	
 }
